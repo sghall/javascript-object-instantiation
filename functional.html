@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <title>Functional</title>
+    <style>
+      .land {
+        fill: #9FB6CD;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="chart">
+      <div class="leaflet-control-container">
+        <div class="leaflet-top leaflet-left has-leaflet-pan-control">
+          <div class="leaflet-control-pan leaflet-control">
+            <div class="leaflet-control-pan-up-wrap">
+              <a id="panUp" class="leaflet-control-pan-up" href="#" title="Up"></a>
+            </div>
+            <div class="leaflet-control-pan-left-wrap">
+              <a id="panLeft" class="leaflet-control-pan-left" href="#" title="Left"></a>
+            </div>
+            <div class="leaflet-control-pan-right-wrap">
+              <a id="panRight" class="leaflet-control-pan-right" href="#" title="Right"></a>
+            </div>
+            <div class="leaflet-control-pan-down-wrap">
+              <a id="panDown" class="leaflet-control-pan-down" href="#" title="Down"></a>
+            </div>
+          </div>
+          <div class="leaflet-control-zoom leaflet-bar leaflet-control">
+            <a id="zoomIn" class="leaflet-control-zoom-in" href="#" title="Zoom in">+</a>
+            <a id="zoomOut" class="leaflet-control-zoom-out" href="#" title="Zoom out">-</a>
+          </div>
+        </div>
+        <div class="leaflet-top leaflet-right has-leaflet-pan-control"></div>
+        <div class="leaflet-bottom leaflet-left has-leaflet-pan-control"></div>
+        <div class="leaflet-bottom leaflet-right has-leaflet-pan-control"></div>
+      </div>
+    </div>
+    <script src="lib/d3.min.js"></script>
+    <script src="lib/topojson.js"></script>
+    <script>
+      //***********************************************************
+      //  D3 MAP CODE - IDENTICAL FOR ALL EXAMPLES
+      //***********************************************************
+      var width = 960, height = 500;
+
+      var projection = d3.geo.conicConformal()
+          .rotate([98, 0])
+          .center([0, 38])
+          .parallels([29.5, 45.5])
+          .scale(1000)
+          .translate([width / 2, height / 2])
+          .precision(.1);
+
+      var path = d3.geo.path()
+          .projection(projection);
+
+      var graticule = d3.geo.graticule()
+          .extent([[-98 - 45, 38 - 45], [-98 + 45, 38 + 45]])
+          .step([5, 5]);
+
+      var svg = d3.select("#chart").append("svg")
+          .attr("width", width)
+          .attr("height", height)
+          .append("g").attr("id", "svg-container");
+
+      svg.append("path")
+          .datum(graticule)
+          .attr("class", "graticule")
+          .attr("d", path);
+
+      d3.json("data/us.json", function(error, us) {
+        svg.insert("path", ".graticule")
+            .datum(topojson.feature(us, us.objects.land))
+            .attr("class", "land")
+            .attr("d", path);
+
+        svg.insert("path", ".graticule")
+            .datum(topojson.mesh(us, us.objects.counties, function(a, b) { return a !== b && !(a.id / 1000 ^ b.id / 1000); }))
+            .attr("class", "county-boundary")
+            .attr("d", path);
+
+        svg.insert("path", ".graticule")
+            .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+            .attr("class", "state-boundary")
+            .attr("d", path);
+      });
+
+      //***********************************************************
+      // DEFINE PAN-ZOOM CONTROL - FUNCTIONAL STYLE
+      //***********************************************************
+      var makePanZoomCTRL = function(id, width, height) {
+        var control = {}
+
+        var zoomMin = -15, // Levels of Zoom Out
+            zoomMax =  15, // Levels of Zoom In
+            zoomCur =   0, // Current Zoom
+            offsetX =   0, // Current X Offset (Pan)
+            offsetY =   0; // Current Y Offset (Pan)
+
+        var transform = function () {
+          var x = -((width * zoomCur / 10) / 2)  + offsetX;
+          var y = -((height * zoomCur / 10) / 2) + offsetY;
+          var s = (zoomCur / 10) + 1;
+          d3.select(id)
+            .attr("transform", "translate(" + x + " " + y + ") scale(" + s + ")");
+        };
+
+        control.pan = function (btnID) {
+          if (btnID === "panLeft") {
+            offsetX += 50;
+          } else if (btnID === "panRight") {
+            offsetX -= 50;
+          } else if (btnID === "panUp") {
+            offsetY += 50;
+          } else if (btnID === "panDown") { 
+            offsetY -= 50;
+          }
+          transform();
+        };
+
+        control.zoom = function (btnID) {
+          if (btnID === "zoomIn") {
+            if (zoomCur >= zoomMax) return;
+            zoomCur++;
+          } else if (btnID === "zoomOut") {
+            if (zoomCur <= zoomMin) return;
+            zoomCur--;
+          }
+          transform();
+        };
+        return control;
+      }
+
+      //***********************************************************
+      // INSTANTIATE PAN-ZOOM CONTROL (CREATE INSTANCE)
+      //***********************************************************
+      var panZoom = makePanZoomCTRL('#svg-container', width, height);
+      console.dir(panZoom);
+      //***********************************************************
+      // SET BUTTON EVENT LISTENERS
+      //***********************************************************
+      d3.selectAll("#zoomIn, #zoomOut")
+        .on("click", function () {
+          d3.event.preventDefault();
+          var id = d3.select(this).attr("id");
+          panZoom.zoom(id);
+        });
+
+      d3.selectAll("#panLeft, #panRight, #panUp, #panDown")
+        .on("click", function () {
+          d3.event.preventDefault();
+          var id = d3.select(this).attr("id");
+          panZoom.pan(id);
+        });
+
+  </script>
