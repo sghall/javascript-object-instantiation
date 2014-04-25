@@ -102,23 +102,26 @@
       var makePanZoomCTRL = function(id, width, height) {
         var control = {};
 
-        control.zoomMin = -15, // Levels of Zoom Out
-        control.zoomMax =  15, // Levels of Zoom In
-        control.zoomCur =   0, // Current Zoom
-        control.offsetX =   0, // Current X Offset (Pan)
-        control.offsetY =   0; // Current Y Offset (Pan)
+        control.id = id,         // ID of Map Container
+        control.width = width,   // Width of Map 
+        control.height = height, // Height of Map 
+        control.zoomMin = -15,   // Levels of Zoom Out
+        control.zoomMax =  15,   // Levels of Zoom In
+        control.zoomCur =   0,   // Current Zoom
+        control.offsetX =   0,   // Current X Offset (Pan)
+        control.offsetY =   0;   // Current Y Offset (Pan)
 
-        control.transform = function () {
-          var x = -((width * this.zoomCur / 10) / 2)  + this.offsetX;
-          var y = -((height * this.zoomCur / 10) / 2) + this.offsetY;
-          var s = (this.zoomCur / 10) + 1;
-          d3.select(id)
-            .attr("transform", "translate(" + x + " " + y + ") scale(" + s + ")");
-        };
         return extend(control, controlMethods);
       }
 
       var controlMethods = {
+        transform: function () {
+          var x = -((this.width * this.zoomCur / 10) / 2)  + this.offsetX;
+          var y = -((this.height * this.zoomCur / 10) / 2) + this.offsetY;
+          var s = (this.zoomCur / 10) + 1;
+          d3.select(this.id)
+            .attr("transform", "translate(" + x + " " + y + ") scale(" + s + ")");
+        },
         pan: function (btnID) {
           if (btnID === "panLeft") {
             this.offsetX += 50;

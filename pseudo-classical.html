@@ -96,17 +96,16 @@
         this.zoomCur =   0, // Current Zoom
         this.offsetX =   0, // Current X Offset (Pan)
         this.offsetY =   0; // Current Y Offset (Pan)
+      }
 
-        this.transform = function () {
+      PanZoomCTRL.prototype = {
+        transform: function () {
           var x = -((width * this.zoomCur / 10) / 2)  + this.offsetX;
           var y = -((height * this.zoomCur / 10) / 2) + this.offsetY;
           var s = (this.zoomCur / 10) + 1;
           d3.select(id)
             .attr("transform", "translate(" + x + " " + y + ") scale(" + s + ")");
-        };
-      }
-
-      PanZoomCTRL.prototype = {
+        },
         pan: function (btnID) {
           if (btnID === "panLeft") {
             this.offsetX += 50;
