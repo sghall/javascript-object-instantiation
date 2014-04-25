@@ -91,19 +91,22 @@
       // DEFINE PAN-ZOOM CONTROL - PSEUDO-CLASSICAL STYLE
       //***********************************************************
       var PanZoomCTRL = function(id, width, height) {
-        this.zoomMin = -15, // Levels of Zoom Out
-        this.zoomMax =  15, // Levels of Zoom In
-        this.zoomCur =   0, // Current Zoom
-        this.offsetX =   0, // Current X Offset (Pan)
-        this.offsetY =   0; // Current Y Offset (Pan)
+        this.id = id,         // ID of Map Container
+        this.width = width,   // Width of Map 
+        this.height = height, // Height of Map 
+        this.zoomMin = -15,   // Levels of Zoom Out
+        this.zoomMax =  15,   // Levels of Zoom In
+        this.zoomCur =   0,   // Current Zoom
+        this.offsetX =   0,   // Current X Offset (Pan)
+        this.offsetY =   0;   // Current Y Offset (Pan)
       }
 
       PanZoomCTRL.prototype = {
         transform: function () {
-          var x = -((width * this.zoomCur / 10) / 2)  + this.offsetX;
-          var y = -((height * this.zoomCur / 10) / 2) + this.offsetY;
+          var x = -((this.width * this.zoomCur / 10) / 2)  + this.offsetX;
+          var y = -((this.height * this.zoomCur / 10) / 2) + this.offsetY;
           var s = (this.zoomCur / 10) + 1;
-          d3.select(id)
+          d3.select(this.id)
             .attr("transform", "translate(" + x + " " + y + ") scale(" + s + ")");
         },
         pan: function (btnID) {
