@@ -100,8 +100,8 @@
             offsetY =   0; // Current Y Offset (Pan)
 
         var transform = function () {
-          var x = -((width * zoomCur / 10) / 2)  + offsetX;
-          var y = -((height * zoomCur / 10) / 2) + offsetY;
+          var x = -((width  * zoomCur / 10) / 2)  + offsetX;
+          var y = -((height * zoomCur / 10) / 2)  + offsetY;
           var s = (zoomCur / 10) + 1;
           d3.select(id)
             .attr("transform", "translate(" + x + " " + y + ") scale(" + s + ")");
@@ -137,7 +137,7 @@
       // INSTANTIATE PAN-ZOOM CONTROL (CREATE INSTANCE)
       //***********************************************************
       var panZoom = makePanZoomCTRL('#svg-container', width, height);
-
+      console.log(panZoom);
       //***********************************************************
       // SET BUTTON EVENT LISTENERS
       //***********************************************************
